@@ -22,6 +22,19 @@ export interface UsageStatistics {
   total_tokens: number;
 }
 
-export interface CreateCompletionRequest {
+export interface ChatMessage {
+  id: number;
+  session_id: string;
   message: string;
+  sender: string;
+  tokens: number;
+  timestamp: string;
+}
+
+export interface CreateMessageRequest {
+  message: string;
+}
+
+export interface GetMessagesRequest {
+  sender: string;
 }

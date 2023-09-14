@@ -17,13 +17,19 @@ const theme = createTheme({
   },
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export function AppLayout({ children }: PropsWithChildren) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className="fixed w-screen h-screen bg-[#101418]"></div>
+      {/* <div className="fixed w-screen h-screen bg-[#101418]"></div> */}
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </ThemeProvider>
   );

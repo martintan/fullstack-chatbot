@@ -1,20 +1,13 @@
 "use client";
-import { Button, Container } from "@mui/material";
-import { useRef } from "react";
-import { useMutation } from "react-query";
-import { createCompletion as createCompletionApi } from "../api";
+import { Button, Card, CardContent, Container, Typography } from "@mui/material";
+import { useCallback, useRef } from "react";
 import { TextField } from "./text-field";
+import { useMessages } from "../hooks/use-messages";
+import { ChatMessage } from "../api";
 
 export function Chat() {
   const formRef = useRef<HTMLFormElement | null>(null);
-
-  const { mutate: createCompletion, isLoading: isCreatingCompletion } = useMutation({
-    mutationKey: ["create-completion"],
-    mutationFn: createCompletionApi,
-    onSuccess(data) {
-      console.log("completion response:", data);
-    },
-  });
+  const messages = useMessages();
 
   const onUpload = () => {};
 
@@ -23,7 +16,7 @@ export function Chat() {
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
     const message = formData.get("prompt")?.toString() ?? "";
-    createCompletion({ message });
+    messages.createMessage({ message });
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
@@ -32,10 +25,21 @@ export function Chat() {
     }
   };
 
+  const renderMessage = useCallback(
+    (m: ChatMessage, i: number) => (
+      <Card key={i}>
+        <CardContent>
+          <Typography variant="body1">{m.message}</Typography>
+        </CardContent>
+      </Card>
+    ),
+    [messages.data]
+  );
+
   return (
     <>
       <Container className="flex flex-col">
-        <div className="flex flex-col grow"></div>
+        <div className="flex flex-col grow p-2">{messages.data?.map(renderMessage)}</div>
       </Container>
       <div className="w-screen fixed bottom-0 pb-2">
         <form ref={formRef} onSubmit={onSubmit}>
@@ -46,7 +50,7 @@ export function Chat() {
             <Button sx={{ alignSelf: "flex-end" }} type="button" variant="contained" onClick={onUpload}>
               Upload
             </Button>
-            <Button sx={{ alignSelf: "flex-end" }} type="submit" variant="contained" disabled={isCreatingCompletion}>
+            <Button sx={{ alignSelf: "flex-end" }} type="submit" variant="contained" disabled={messages.isCreating}>
               Send
             </Button>
           </Container>

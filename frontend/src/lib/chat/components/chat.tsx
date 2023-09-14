@@ -1,8 +1,8 @@
 "use client";
 import { Button, Container } from "@mui/material";
-import { SyntheticEvent, useRef } from "react";
+import { useRef } from "react";
 import { useMutation } from "react-query";
-import { ModelEnum, createCompletion as createCompletionApi } from "../api";
+import { createCompletion as createCompletionApi } from "../api";
 import { TextField } from "./text-field";
 
 export function Chat() {
@@ -18,14 +18,18 @@ export function Chat() {
 
   const onUpload = () => {};
 
-  const onSubmit = (e: SyntheticEvent) => {
+  const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
-    createCompletion({
-      model: ModelEnum.GPT_35_TURBO,
-      prompt: formData.get("prompt")?.toString() ?? "",
-    });
+    const message = formData.get("prompt")?.toString() ?? "";
+    createCompletion({ message });
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key == "Enter") {
+      formRef.current?.submit();
+    }
   };
 
   return (
@@ -37,12 +41,12 @@ export function Chat() {
         <form ref={formRef} onSubmit={onSubmit}>
           <Container className="flex flex-row gap-2">
             <div className="flex-grow">
-              <TextField type="text" name="prompt" />
+              <TextField multiline type="text" name="prompt" onKeyDown={onKeyDown} />
             </div>
-            <Button type="button" variant="contained" color="primary" onClick={onUpload}>
+            <Button sx={{ alignSelf: "flex-end" }} type="button" variant="contained" onClick={onUpload}>
               Upload
             </Button>
-            <Button type="submit" variant="contained" color="primary" disabled={isCreatingCompletion}>
+            <Button sx={{ alignSelf: "flex-end" }} type="submit" variant="contained" disabled={isCreatingCompletion}>
               Send
             </Button>
           </Container>

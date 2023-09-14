@@ -9,3 +9,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Generate the base class for models
 Base = declarative_base()
+
+
+# Set up dependency injection for FastAPI
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

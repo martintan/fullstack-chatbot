@@ -7,10 +7,10 @@ openai.api_version = OPENAI_CLIENT_API_VERSION
 openai.api_key = OPENAI_CLIENT_API_KEY
 
 
-def create_chat_completion(message: str):
+def create_chat_completion(messages: str):
     return openai.ChatCompletion.create(
         engine=OPENAI_CLIENT_ENGINE,
-        messages=[message],
+        messages=messages,
         temperature=0.3,
         max_tokens=350,
         top_p=1,

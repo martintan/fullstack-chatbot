@@ -1,14 +1,15 @@
 import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps } from "@mui/material";
 
-type TextFieldProps = MuiTextFieldProps;
+type TextFieldProps = MuiTextFieldProps & {
+  onSubmit?: () => void;
+};
 
-export function TextField(props: TextFieldProps) {
-  return (
-    <MuiTextField
-      variant="outlined"
-      placeholder="Say hello!"
-      sx={{ bgcolor: "white", borderRadius: 2, width: "100%" }}
-      {...props}
-    />
-  );
-}
+export const TextField = (props: TextFieldProps) => (
+  <MuiTextField
+    variant="outlined"
+    placeholder="Say hello!"
+    sx={{ borderRadius: 2, width: "100%" }}
+    size="small"
+    {...props}
+  />
+);

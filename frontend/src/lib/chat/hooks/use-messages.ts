@@ -1,15 +1,18 @@
 import { BACKEND_API_BASE_URL, WS_PROCOTOL } from "@/lib/environment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import useWebSocket from "react-use-websocket";
 import { ChatMessage, CreateMessageRequest, WebSocketMessageResponse, getMessages } from "../api";
 
-const backendOrigin = BACKEND_API_BASE_URL?.replace(/(^\w+:|^)\/\//, "") ?? "";
-const wsUrl = `${WS_PROCOTOL}://${backendOrigin}/messages/ws`;
-
 export function useMessages() {
   const queryClient = useQueryClient();
   const [waitingForMessage, setWaitingForMessage] = useState(false);
+  const backendOrigin = BACKEND_API_BASE_URL?.replace(/(^\w+:|^)\/\//, "") ?? "";
+  const wsUrl = `${WS_PROCOTOL}://${backendOrigin}/messages/ws`;
+
+  useEffect(() => {
+    console.log("wsUrl:", wsUrl);
+  }, []);
 
   const { data: messages, isLoading: isLoadingMessages } = useQuery({
     queryKey: ["messages"],

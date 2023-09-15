@@ -1,1 +1,2 @@
 export const BACKEND_API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL;
+export const WS_PROCOTOL = process.env.NEXT_PUBLIC_BACKEND_WS_PROTOCOL;

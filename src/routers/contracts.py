@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 
-class CreateCompletionRequest(BaseModel):
+class MessageRequest(BaseModel):
     message: str

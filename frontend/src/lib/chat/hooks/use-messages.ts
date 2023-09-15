@@ -1,32 +1,48 @@
-import { useMutation, useQuery } from "react-query";
-import { createMessage as createMessageApi, getMessages } from "../api";
+import { BACKEND_API_BASE_URL } from "@/lib/environment";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
+import useWebSocket from "react-use-websocket";
+import { ChatMessage, CreateMessageRequest, WebSocketMessageResponse, getMessages } from "../api";
+
+const backendOrigin = BACKEND_API_BASE_URL?.replace(/(^\w+:|^)\/\//, "") ?? "";
+const wsUrl = `ws://${backendOrigin}/messages/ws`;
 
 export function useMessages() {
-  const {
-    data: data,
-    isLoading: isLoadingMessages,
-    refetch,
-  } = useQuery({
+  const queryClient = useQueryClient();
+  const [waitingForMessage, setWaitingForMessage] = useState(false);
+
+  const { data: messages, isLoading: isLoadingMessages } = useQuery({
     queryKey: ["messages"],
-    queryFn: () => getMessages({ sender: "test" }),
-    select: (res) => res.data,
+    queryFn: () => getMessages({ sender: "test" }).then((res) => res.data),
   });
 
-  const { mutate: createMessage, isLoading: isCreating } = useMutation({
-    mutationKey: ["create-message"],
-    mutationFn: createMessageApi,
-    onSuccess(data) {
-      console.log("create message response:", data);
-      refetch();
+  const { sendMessage } = useWebSocket(wsUrl, {
+    onMessage(event: MessageEvent<string>) {
+      setWaitingForMessage(false);
+      try {
+        const message = JSON.parse(event.data) as WebSocketMessageResponse;
+        console.log("Received message:", message);
+        // Optimistic update to avoid refetching everything
+        queryClient.setQueryData(["messages"], (oldData?: ChatMessage[]) =>
+          oldData ? [...oldData, ...message.messages] : []
+        );
+      } catch (err) {
+        console.error(err);
+      }
     },
   });
 
+  const createMessage = (req: CreateMessageRequest) => {
+    setWaitingForMessage(true);
+    sendMessage(JSON.stringify(req));
+  };
+
   return {
     // Get messages
-    data,
+    data: messages,
     isLoadingMessages,
     // Create message
     createMessage,
-    isCreating,
+    waitingForMessage,
   };
 }

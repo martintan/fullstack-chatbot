@@ -38,3 +38,7 @@ export interface CreateMessageRequest {
 export interface GetMessagesRequest {
   sender: string;
 }
+
+export interface WebSocketMessageResponse {
+  messages: ChatMessage[];
+}
